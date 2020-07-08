@@ -31,7 +31,7 @@ public class PercolationStats {
         this.confidenceHi = mean + (1.96 * stddev / Math.sqrt(trials));
     }
 
-    double executeTrial(int n) {
+    private double executeTrial(int n) {
         Percolation p = new Percolation(n);
         while (!p.percolates()) {
             p.open(StdRandom.uniform(1, n + 1), StdRandom.uniform(1, n + 1));
