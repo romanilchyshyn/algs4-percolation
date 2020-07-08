@@ -9,7 +9,8 @@ import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 public class Percolation {
 
     private final int n;
-    private final WeightedQuickUnionUF uf;
+    private final WeightedQuickUnionUF ufWithVirtualTopBottom;
+    private final WeightedQuickUnionUF ufWithVirtualTop;
     private final int virtualTopSite;
     private final int virtualBottomSite;
     private boolean[] sites;
@@ -23,10 +24,10 @@ public class Percolation {
 
         this.n = n;
         int sitesCount = n * n;
-        int count = sitesCount + 2; // 2 virtual sites
-        this.uf = new WeightedQuickUnionUF(count);
-        this.virtualTopSite = count - 2;
-        this.virtualBottomSite = count - 1;
+        this.ufWithVirtualTopBottom = new WeightedQuickUnionUF(sitesCount + 2); // 2 virtual sites
+        this.ufWithVirtualTop = new WeightedQuickUnionUF(sitesCount + 1); // 1 virtual sites
+        this.virtualTopSite = sitesCount;
+        this.virtualBottomSite = sitesCount + 1;
         this.sites = new boolean[sitesCount];
     }
 
@@ -41,10 +42,11 @@ public class Percolation {
         numberOfOpenSites++;
 
         if (isTopRow(row)) {
-            uf.union(siteIndex, virtualTopSite);
+            ufWithVirtualTopBottom.union(siteIndex, virtualTopSite);
+            ufWithVirtualTop.union(siteIndex, virtualTopSite);
         }
         if (isBottomRow(row)) {
-            uf.union(siteIndex, virtualBottomSite);
+            ufWithVirtualTopBottom.union(siteIndex, virtualBottomSite);
         }
 
         connectWithNeighbourIfNeeded(siteIndex, row - 1, col);
@@ -62,7 +64,7 @@ public class Percolation {
     // is the site (row, col) full?
     public boolean isFull(int row, int col) {
         int siteIndex = toSiteIndex(row, col);
-        return uf.find(virtualTopSite) == uf.find(siteIndex);
+        return ufWithVirtualTop.find(virtualTopSite) == ufWithVirtualTop.find(siteIndex);
     }
 
     // returns the number of open sites
@@ -72,7 +74,7 @@ public class Percolation {
 
     // does the system percolate?
     public boolean percolates() {
-        return uf.find(virtualTopSite) == uf.find(virtualBottomSite);
+        return ufWithVirtualTopBottom.find(virtualTopSite) == ufWithVirtualTopBottom.find(virtualBottomSite);
     }
 
     private int toSiteIndex(int row, int col) {
@@ -105,7 +107,8 @@ public class Percolation {
         }
 
         int neighbourSiteIndex = toSiteIndex(row, col);
-        uf.union(siteIndex, neighbourSiteIndex);
+        ufWithVirtualTopBottom.union(siteIndex, neighbourSiteIndex);
+        ufWithVirtualTop.union(siteIndex, neighbourSiteIndex);
     }
 
     public static void main(String[] args) {
